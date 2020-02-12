@@ -4,6 +4,6 @@ libraries{
   sonarqube{
     credential_id = "sonarqube"
     sonar_server = "SonarQube"
-    enforce_quality_gate = true
+    enforce_quality_gate = false
   }
 }
