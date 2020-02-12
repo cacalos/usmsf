@@ -1,5 +1,6 @@
 allow_scm_jenkinsfile = true
 libraries{
+  common
   make
   sonarqube{
     credential_id = "sonarqube"
