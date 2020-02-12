@@ -45,7 +45,7 @@ dep: ## Get the dependencies
 	@go get -v -d ./...
 
 build: dep ## Build the binary file
-	@go build -o ./cmd/usmsf/usmsf -v ./cmd/usmsf
+	@go build -o ./cmds/hello -v ./cmds
 
 clean: ## Remove previous build
 	@go clean -v ./...
