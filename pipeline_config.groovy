@@ -4,7 +4,7 @@ libraries{
   make
   sonarqube{
     credential_id = "sonarqube"
-    sonar_server = "SonarQube"
+    sonar_server = "SonarQubeJoy"
     enforce_quality_gate = false
   }
 }
