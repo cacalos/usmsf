@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usmsf-nrf
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+     app: usmsf-nrf
+  template:
+    metadata:
+      labels:
+        app: usmsf-nrf
+        version: v1
+    spec:
+      {{- if .Values.global.nodeName }}
+      nodeName: {{ .Values.global.nodeName }}
+      {{- end }}
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: {{ .Values.configmap.name }}
+      - name: log-volume
+        emptyDir: {}
+      - name: tcpdump 
+        emptyDir: {}
+      containers:
+      - name: usmsf-nrf
+        image: {{ .Values.deployment.containers.nrfclient.image }}
+        imagePullPolicy: {{ .Values.deployment.containers.nrfclient.imagePullPolicy }}
+        {{- if .Values.resources }}
+        {{- if or (.Values.resources.limits) (.Values.resources.requests) }}
+        resources:
+          {{- if .Values.resources.limits }}
+          {{- if or (.Values.resources.limits.cpu) (.Values.resources.limits.memory) }}
+          limits:
+            {{- if .Values.resources.limits.cpu }}
+            cpu: {{ .Values.resources.limits.cpu }}
+            {{- end }}
+            {{- if .Values.resources.limits.memory }}
+            memory: {{ .Values.resources.limits.memory }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.resources.requests }}
+          {{- if or (.Values.resources.requests.cpu) (.Values.resources.requests.memory) }}
+          requests:
+            {{- if .Values.resources.requests.cpu }}
+            cpu: {{ .Values.resources.requests.cpu }}
+            {{- end }}
+            {{- if .Values.resources.requests.memory }}
+            memory: {{ .Values.resources.requests.memory }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        - name: shared-data 
+          mountPath: /tmp
+        - name: log-volume
+          mountPath: /app/logs
+        env:
+        - name: USMSF_HOME
+          value: /app
+        - name: USMSF_CONFIG_FILE
+          value: /app/config/reference.conf
+        - name: NRF_HOST 
+          value: {{ .Values.deployment.nrfHostAddress }}
+        - name: JAEGER_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        #command: ["sh", "-c", "--"]
+        #args: ["while true; do sleep 30; done;"]

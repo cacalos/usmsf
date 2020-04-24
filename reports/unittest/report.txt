@@ -1,0 +1,43 @@
+?   	camel.uangel.com/ua5g/usmsf.git/cmd/amf_sim	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/cmd/nrfsim	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/cmd/tools/jwt_generator	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/cmd/udm_sim	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/cmd/usmsf	[no test files]
+=== RUN   TestExpireMap
+--- PASS: TestExpireMap (8.25s)
+    expiremap_test.go:44: Set data key=test-key, v=test-value, time=2020-04-20 16:11:47.323214 +0900 KST m=+0.009116010
+    expiremap_test.go:80: Expire data key=test-key, v=test-value, time=2020-04-20 16:11:51.396959 +0900 KST m=+4.082988288
+PASS
+coverage: 9.3
+ok  	camel.uangel.com/ua5g/usmsf.git/common	8.368s	coverage: 9.3
+?   	camel.uangel.com/ua5g/usmsf.git/dao	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/endecoder/cpdu	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/endecoder/rpdu	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/endecoder/rpdu/encoders	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/cdrmgr	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/configmgr	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/controller	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/db	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/disabletoken	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/healthchecker	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/httpif	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/nrfclient	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/statmgr	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/svctracemgr	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/tcpmgr	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/tcptracemgr	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/implements/tracemgr	[no test files]
+=== RUN   TestExpireMap
+--- PASS: TestExpireMap (8.22s)
+    expiremap_test.go:44: Set data key=test-key, v=test-value, time=2020-04-20 16:12:09.308749 +0900 KST m=+0.001714824
+    expiremap_test.go:80: Expire data key=test-key, v=test-value, time=2020-04-20 16:12:12.383565 +0900 KST m=+3.076626829
+PASS
+coverage: 30.5
+ok  	camel.uangel.com/ua5g/usmsf.git/implements/utils	8.247s	coverage: 30.5
+?   	camel.uangel.com/ua5g/usmsf.git/interfaces	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/mockups	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/modules	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/modules/mockupmodules	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/msg5g	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/sim/amfnrfcli	[no test files]
+?   	camel.uangel.com/ua5g/usmsf.git/sim/udmnrfcli	[no test files]

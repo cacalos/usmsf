@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: smsf
+  name: usmsf-smsc-sim
+  labels:
+    app: usmsf-smsc-sim
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3868
+    name: diameter
+  selector:
+    app: usmsf-smsc
+  clusterIP: 100.0.1.200
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: smsf
+  name: usmsf-smsc
+spec:
+  selector:
+    matchLabels:
+      app: usmsf-smsc
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: usmsf-smsc
+        version: v1
+    spec:
+      nodeName: worker01.standalone
+      volumes:
+      - name: config-if-volume
+        configMap:
+          name: usmsf-smsc
+      containers:
+      - name: smsc
+        image: camel.uangel.com:5000/smsc_sim:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config-if-volume
+          mountPath: /home/app/config
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USMSF_HOME
+          value: /home/app
+        - name: SVC_POD_HOST
+          value: usmsf-svc-internal.smsf.svc.cluster.local:8011
+      initContainers:
+      - name: init-sysctl
+        image: busybox:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - |
+          sysctl -w kernel.msgmax=65536
+          sysctl -w kernel.msgmni=80000
+          sysctl -w kernel.msgmnb=536862720
+          sysctl -w net.ipv4.tcp_mem="8388608 8388608 10485760"
+        securityContext:
+          privileged: true
+---
+#          sysctl -w kernel.msgmnb=536862720
+#          sysctl -w net.ipv4.tcp_rmem="8388608 8388608 10485760"
+#          sysctl -w net.ipv4.tcp_wmem="8388608 8388608 10485760"

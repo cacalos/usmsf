@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "configuration.dtd">
+
+<udiameter>
+	<general>
+		<max_server>64</max_server>
+		<max_peer>1024</max_peer>
+		<max_route>1024</max_route>
+		<option>
+			<use_ipv6>no</use_ipv6>
+		</option>
+		<parser>
+			<version>1</version>
+		</parser>
+		<timer>
+			<tw_timer>5000</tw_timer>
+			<!--tc_timer>18000</tc_timer-->
+			<tq_timer>1000</tq_timer>
+			<te_timer>2500</te_timer>
+		</timer>
+	</general>
+	<dictionary>
+		<file>$UASYS_HOME/data/dict/dict_ietf_avps.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_3gpp_avps.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_etsi_avps.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_ietf_base_RFC6733.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_3gpp_CxDx_TS29229.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_uangel_avps.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_uangel.xml</file>
+	</dictionary>
+	<server id="0" hostname="smsf.uangel.com" realm="uangel.com" default="yes">
+		<option>
+			<use_ipv6>no</use_ipv6>
+			<use_duplicate_detect>yes</use_duplicate_detect>
+		</option>
+		<parser>
+			<version>1</version>
+		</parser>
+		<timer>
+			<tw_timer>5000</tw_timer>
+			<!--tc_timer>1800</tc_timer-->
+			<tq_timer>1000</tq_timer>
+			<te_timer>2500</te_timer>
+		</timer>
+		<capability>
+			<product_name>UANGEL DIAMETER</product_name>
+			<vendor_id>0</vendor_id>
+			<supported_vendor_id>0</supported_vendor_id>
+			<supported_vendor_id>5806</supported_vendor_id>
+			<supported_vendor_id>10415</supported_vendor_id>
+			<supported_vendor_id>14389</supported_vendor_id>
+			<auth_application_id>4</auth_application_id>
+			<acct_application_id>3</acct_application_id>
+			<vendor_specific_application_id>
+				<vendor_id>10415</vendor_id>
+				<auth_application_id>16777217</auth_application_id>
+			</vendor_specific_application_id>
+			<host_ip_address>192.168.1.182</host_ip_address>
+		</capability>
+		<transport type="tcp" port="3868"/>
+		<transport type="sctp" port="3868"/>
+	</server>
+	<peer id="0" hostname="smsc.kt.com" server="smsf.uangel.com">
+		<disable>no</disable>
+		<transport type="tcp" port="3968" way="CLIENT" address="172.16.10.38">
+		</transport>
+	</peer>
+	<route id="0" realm="kt.com" server="smsf.uangel.com" default="no">
+        	<approute application_id="16777313" role="LOCAL">
+        		<peerroute peer="smsc.kt.com"/>
+        	</approute>
+        	<approute application_id="0" role="LOCAL" default="yes">
+        	</approute>
+	</route>
+</udiameter>

@@ -1,0 +1,28 @@
+{
+	"nfInstanceId": "d1443c16-bf97-46c2-8633-d396161e911c",
+	"nfType": "SMSF",
+	"nfStatus": "REGISTERED",
+	"ipv4Addresses": [
+		"111.216.1.190"
+        ],
+	"nfServices": {
+		"serviceInstanceId": "SMSF-nsmsf-sms-111.216.1.190-8001",
+		"serviceName": "nsmsf-sms",
+		"versions": {
+			"apiVersionInUri": "v1",
+			"apiFullVersion": "1.0.0"
+		},
+		"scheme": "http",
+		"nfServiceStatus": "REGISTERED",
+		"ipEndPoints": {
+			"ipv4Address": "111.216.1.190",
+			"port": 8001
+		}
+	},
+	"plmn": {
+		"mcc": "450",
+		"mnc": "05"
+	},
+	"capacity": 50,
+	"load": 0
+}

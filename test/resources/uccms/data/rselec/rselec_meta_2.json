@@ -1,0 +1,27 @@
+{
+  "configMetaVersion": "0.1.0",
+  "info": {
+    "serviceName": "SMSF",
+     "configName": "Decision Configuration",
+     "tag": "v2.0"
+  },
+  "configMeta": {
+    "DECISION": {
+      "description": "Decision Table Information",
+      "schema": {
+        "items": {
+          "properties": {
+              "Prefix": { "type": "string"},
+              "Decision": {
+                "type": "string",
+                "enum": ["SIGTRAN", "DIAMETER"]
+               }
+          },
+          "type": "object"
+        },
+          "type": "array"
+      }
+
+    }
+  }
+} 

@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: smsf
+  name: usmsf-act-sim
+  labels:
+    app: usmsf-act-sim
+spec:
+  ports:
+  - name: usmsf-act-sim
+    port: 1234
+  selector:
+    app: usmsf-act-sim
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usmsf-act-sim-v1
+  namespace: smsf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: usmsf-act-sim
+  template:
+    metadata:
+      labels:
+        app: usmsf-act-sim
+        version: v1
+    spec:
+      nodeName: worker01.standalone
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: usmsf-actsim
+      - name: log-volume
+        emptyDir: {}
+      - name: tcpdump 
+        emptyDir: {}
+      containers:
+      - name: usmsf-act-sim
+        image: camel.uangel.com:5000/usmsf-usmsfperf:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        - name: shared-data 
+          mountPath: /tmp
+        - name: log-volume
+          mountPath: /app/logs
+        env:
+        - name: USMSF_HOME
+          value: /app
+        - name: USMSF_CONFIG_FILE
+          value: /app/config/application.conf
+        command: ["sh", "-c", "--"]
+        args: ["while true; do sleep 30; done;"]
+---

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.service.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.service.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.name }}
+        version: v1
+    spec:
+      {{- if .Values.global.nodeName }}
+      nodeName: {{ .Values.global.nodeName }}
+      {{- end }}
+      containers:
+      - name: nginx
+        image: {{ .Values.deployment.containers.emgui.image }}
+        imagePullPolicy: {{ .Values.deployment.containers.emgui.imagePullPolicy }}
+        resources: {{ toYaml .Values.resources | nindent 12 }}
+        ports:
+        - containerPort: {{ .Values.service.ports.nginx.targetPort }}
+        env:
+        - name: USMSF_EMGUI_DB_URL
+          value: "{{ .Values.global.serviceName.mariadb }}.{{ .Release.Namespace }}.svc.{{ .Values.global.dnsName.zone }}"
+        - name: USMSF_EMGUI_DB_USERNAME
+          value: {{ .Values.deployment.env.emguiDB.username | quote }}
+        - name: USMSF_EMGUI_DB_PASSWORD
+          value: {{ .Values.deployment.env.emguiDB.password | quote }}
+        - name: USMSF_EMGUI_DB_DATABASE
+          value: {{ .Values.deployment.env.emguiDB.dbname | quote }}
+        - name: USMSF_EMGUI_DB_PORT
+          value: {{ .Values.deployment.env.emguiDB.port | quote }}
+        - name: USMSF_EMGUI_CONFMGR_OPENAPI_URL
+          value: "{{ .Values.global.serviceName.uccms }}.{{ .Release.Namespace }}.svc.{{ .Values.global.dnsName.zone }}:{{ .Values.global.port.uccms.servicePort }}/app/v1/"
+        volumeMounts:
+        - name: {{ .Values.configmap.volumeName }}
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: {{ .Values.configmap.volumeName }}
+        configMap:
+          name: {{ .Values.configmap.name }}
+          item:
+          - key: nginx.conf
+            path: nginx.conf

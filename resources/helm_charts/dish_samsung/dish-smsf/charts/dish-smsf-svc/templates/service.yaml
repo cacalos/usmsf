@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.global.serviceName.svc }}
+  labels:
+    app: {{ .Values.global.serviceName.svc }}
+spec:
+  type: {{ .Values.service.type | default "ClusterIP" }}
+  {{- if .Values.service.clusterIP }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  {{- end }}
+   {{- if (eq .Values.service.type "LoadBalancer") }}
+  loadBalancerIP: {{ .Values.global.smsf.ipaddr.expose.svc.ipv4 }}
+  {{- end }}
+  {{- if .Values.global.smsf.ipaddr.expose.svc.ipv4ForExternalIP }}
+  externalIPs:
+  - {{ .Values.global.smsf.ipaddr.expose.svc.ipv4ForExternalIP }}
+  {{- end }}
+  ports:
+  - name: http-nfserver
+    port: {{ .Values.global.smsf.serverPort.forNFServer.http }}
+    targetPort: {{ .Values.global.smsf.serverPort.forNFServer.http }}
+    {{- if (eq .Values.service.type "NodePort") }}
+    nodePort : {{ .Values.service.ports.httpNFServer.nodePort }}
+    {{- end }}
+  - name: https-nfserver
+    port: {{ .Values.global.smsf.serverPort.forNFServer.https }}
+    targetPort: {{ .Values.global.smsf.serverPort.forNFServer.https }}
+    {{- if (eq .Values.service.type "NodePort") }}
+    nodePort : {{ .Values.service.ports.httpsNFServer.nodePort }}
+    {{- end }}
+  selector:
+    app: usmsf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.global.serviceName.svc }}-internal
+  labels:
+    app: {{ .Values.global.serviceName.svc }}
+spec:
+  type: ClusterIP
+  ports:
+  - name: http-imapserver
+    port: {{ .Values.global.smsf.serverPort.forInternal.http }}
+    targetPort: {{ .Values.global.smsf.serverPort.forInternal.http }}
+  selector:
+    app: usmsf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.global.serviceName.svc }}-trace
+  labels:
+    app: {{ .Values.global.serviceName.svc }}
+spec:
+  type: ClusterIP
+  ports:
+  - name: http-trace
+    port: {{ .Values.global.smsf.serverPort.forTrace.http }}
+  selector:
+    app: usmsf

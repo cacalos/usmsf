@@ -1,0 +1,50 @@
+global:
+  nfType: "SMSF"
+  serviceName:
+    svc: "usmsf-svc"
+    dia: "usmsf-dia-svc"
+    mariadb: "umariadb"
+    uccms: "usmsf-uccms"
+    emagt: "emagt"
+  port:
+    dia:
+      container: 8080
+      forSMSC: 3868
+    uccms:
+      servicePort: 9090
+    emagt:
+      http: 9292
+      ws: 9393
+    emgui: 9090
+  smsf:
+    nfId: "d1443c16-bf97-46c2-8633-d396161e911c"
+    mcc: "450"
+    mnc: "05"
+    ipaddr:
+      expose:
+        svc:
+          ipv4: "192.168.7.180"
+          ipv4ForExternalIP: "192.168.7.180"
+        nrfClient:
+          ipv4: ""
+          ipv4ForExternalIP: ""
+    serverPort:
+      forNFServer:
+        http: 8001
+        #http: 80
+        https: 8002
+      forInternal:
+        http: 8011
+        https: 8012
+      forConfigMgr:
+        http: 8090
+      forTrace:
+        http: 8100
+  dnsName:
+    #zone: "5gsamsung.local"
+    zone: "cluster.local"
+  #nodeName: "k8s-worker01"
+  nodeName: "iot-02"
+  smscSim:
+    clusterIP: "10.100.176.200"
+  timezone: "Asia/Seoul"

@@ -1,0 +1,4 @@
+github.com/go-redis/redis v0.0.0-20190108120409-22be8a3eaf99 h1:luuVXW7508in1EOqTxMXqspKGsKdf9gd6cdKdOETsz0=
+github.com/go-redis/redis v0.0.0-20190108120409-22be8a3eaf99/go.mod h1:NAIEuMOZ/fxfXJIrKDQDz8wamY7mA7PouImQ2Jvg6kA=
+github.com/gomodule/redigo v0.0.0-20180314223443-9c11da706d9b h1:UaUZZ7wvB5MCnq6WFLNDmJ47HLBts6F7+4BEwJAtXjo=
+github.com/gomodule/redigo v0.0.0-20180314223443-9c11da706d9b/go.mod h1:B4C85qUVwatsJoIUNIfCRsp7qO0iAmpGFZ4EELWSbC4=

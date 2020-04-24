@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: usmsf-smsc-sim
+  labels:
+    app: usmsf-smsc-sim
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - port: {{ .Values.service.ports.diameter }}
+    name: diameter
+  selector:
+    app: usmsf-smsc
+  {{- if .Values.global.smscSim.clusterIP }}
+  clusterIP: {{ .Values.global.smscSim.clusterIP }}
+  {{- end }}

@@ -1,0 +1,9 @@
+#final stage
+FROM alpine:latest
+ARG command
+ENV COMMAND=$command
+RUN apk --no-cache add ca-certificates
+RUN mkdir /app
+COPY $COMMAND /app/$COMMAND
+ENV GIN_MODE release
+ENTRYPOINT /app/$COMMAND

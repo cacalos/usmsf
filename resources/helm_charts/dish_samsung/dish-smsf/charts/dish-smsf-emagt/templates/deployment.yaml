@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.serviceName.emagt }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.service.emagt.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.service.emagt.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.emagt.name }}
+        version: v1
+    spec:
+      {{- if .Values.global.nodeName }}
+      nodeName: {{ .Values.global.nodeName }}
+      {{- end }}
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      containers:
+      - name: emagt
+        image: {{ .Values.deployment.containers.emagt.image }}
+        imagePullPolicy: {{ .Values.deployment.containers.emagt.imagePullPolicy }}
+        {{- if .Values.resources }}
+        resources: {{ toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.global.port.emagt.http }}
+        - containerPort: {{ .Values.global.port.emagt.ws }}
+        - containerPort: 8080
+        env:
+        - name: MYSQL_ADDR
+          value: "{{ .Values.global.serviceName.mariadb }}.{{ .Release.Namespace }}.svc.{{ .Values.global.dnsName.zone }}"
+        - name: SUPPORT_EXPORTER
+          value: "true"

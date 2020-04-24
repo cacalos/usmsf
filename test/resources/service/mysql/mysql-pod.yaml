@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-test-v1
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mysql 
+        version: v1
+    spec:
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: mysql-conf
+      - name: log-volume
+        emptyDir: {}
+      containers:
+      - name: mysql
+        image: kube-registry.kube-system.svc.cluster.local:5000/mysql:latest 
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/tmp
+        - name: shared-data 
+          mountPath: /tmp
+        - name: log-volume
+          mountPath: /app/logs
+        env:
+        - name: USMSF_HOME
+          value: /app
+        - name: USMSF_CONFIG_FILE
+          value: /app/config/mysql.conf
+        command: 
+        - /bin/sh
+        - -c
+        - |
+          mkdir /app/config
+          cp /app/tmp/*.conf /app/config/
+          while true; do sleep 30; done;      
+
+---

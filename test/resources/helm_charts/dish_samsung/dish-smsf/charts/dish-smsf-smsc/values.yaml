@@ -1,0 +1,27 @@
+# Default values for dish-smsf-smsc.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deployment:
+  replicas: 1
+  containers:
+    smsc:
+      #image: "camel.uangel.com:5000/smsc_sim:v050"
+      image: "camel.uangel.com:5000/smsc_sim:latest"
+      imagePullPolicy: "IfNotPresent"
+
+service:
+  type: ClusterIP
+  ports:
+    diameter: 3868
+
+configmap:
+  name: "usmsf-smsc"
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 512M
+  requests:
+    cpu: 200m
+    memory: 512M

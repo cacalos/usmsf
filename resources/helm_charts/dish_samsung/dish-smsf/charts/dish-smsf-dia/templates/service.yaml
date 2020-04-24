@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.global.serviceName.dia }}
+  labels:
+    app: {{ .Values.global.serviceName.dia }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.global.port.dia.container }}
+    name: http-nfserver
+  - port: {{ .Values.global.port.dia.forSMSC }}
+    name: diameter
+  selector:
+      app: usmsf-adif
+

@@ -1,0 +1,33 @@
+[
+    {
+       "op": "replace",
+       "path": "/DECISION",
+       "value": [{
+          "Prefix": "4900",
+          "Decision": "SIGTRAN"
+       },
+       {
+           "Prefix": "4500",
+           "Decision": "DIAMETER"
+       },
+       {
+	   "Prefix": "4950",
+           "Decision": "DIAMETER"
+       },
+       {
+           "Prefix": "43",
+           "Decision": "SIGTRAN"
+       },
+       {
+           "Prefix": "4200",
+           "Decision": "SIGTRAN"
+       },
+       {
+           "Prefix": "4700",
+           "Decision": "DIAMETER"
+       }	
+
+      ]
+    }
+]
+

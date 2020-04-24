@@ -1,0 +1,43 @@
+[
+    {
+        "op": "replace",
+        "path": "/NODE",
+        "value": [{
+          "Desc": "Test1",
+          "Dest_host": "smsc.kt.com",
+          "Dest_realm": "kt.com",
+          "FlowCTRL": 1,
+          "Isdn": "01044443333",
+          "Name": "SMSC1",
+          "Pc": 256,
+          "Ssn": 11,
+          "Type": 0
+        },
+        {
+          "Desc": "TEST2",
+          "Dest_host": "smsc.kt.com",
+          "Dest_realm": "kt.com",
+          "FlowCTRL": 3,
+          "Isdn": "01033335555",
+          "Name": "SMSC2",
+          "Pc": 256,
+          "Ssn": 11,
+          "Type": 0
+        } 
+       ] 
+    },
+    {
+       "op": "replace",
+       "path": "/PREFIX",
+       "value": [{
+          "Prefix": "010",
+          "SMSC Name": "SMSC2"
+       },
+       {
+           "Prefix": "0104",
+           "SMSC Name": "SMSC1"
+       }
+      ]
+    }
+]
+

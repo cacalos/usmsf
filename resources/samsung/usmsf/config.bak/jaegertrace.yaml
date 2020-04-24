@@ -1,0 +1,46 @@
+# service name to use on the tracer
+serviceName: USMSF
+
+disabled: true
+
+rpc_metrics: false
+
+# trace level. panic/fatal/error/warn/info/debug
+level: info
+
+# trace mode. all/subscriber
+mode: all
+
+# true/false
+logHttpBody: true
+
+#tags:
+#  - key:
+#    value:
+
+sampler:
+  type: const
+  param: 0.0000000001
+  samplingServerURL:
+  maxOperations:
+  samplingRefreshInterval:
+
+reporter:
+  queueSize:
+  bufferFlushInterval: 10s
+  logSpans: true
+  localAgentHostPort: "127.0.0.1:6831"
+#  localAgentHostPort: "jaeger-agent.default.svc.cluster.local:30831"
+  collectorEndpoint:
+
+headers:
+
+baggage_restrictions:
+  denyBaggageOnInitializationFailure: # true/false
+  hostPort: # string
+  refreshInterval:  #time.duration
+
+throttler:
+  hostPort:
+  refreshInterval:
+  synchronousInitialization:

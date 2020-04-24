@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.configmap.name }}
+data:
+  nginx.conf: |-
+    worker_processes  1;
+
+    error_log  /home/app/nginx/logs/error.log;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       mime.types;
+        default_type  application/octet-stream;
+
+        client_body_temp_path /home/app/nginx/tmp/nginx-client-body;
+        proxy_temp_path /home/app/nginx/tmp/nginx-proxy;
+        fastcgi_temp_path /home/app/nginx/tmp/nginx-fastcgi;
+        uwsgi_temp_path /home/app/nginx/tmp/nginx-uwsgi;
+        scgi_temp_path /home/app/nginx/tmp/nginx-scgi;
+
+        access_log  off;
+
+        sendfile    on;
+
+        keepalive_timeout  0;
+
+        server {
+            listen       {{ .Values.service.ports.nginx.targetPort }};
+            server_name  172.16.10.42;
+            root        /home/app/nginx/html;
+
+            location / {
+                index  index.html index.htm index.php;
+            }
+
+            location /em-master {
+                index index.html index.php;
+                try_files $uri $uri/ /em-master/index.php;
+            }
+
+            # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+            #
+            location ~ \.php$ {
+                try_files $uri =404;
+                fastcgi_pass   127.0.0.1:9000;
+                fastcgi_index  index.php;
+                fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+                include        fastcgi_params;
+            }
+        }
+    }

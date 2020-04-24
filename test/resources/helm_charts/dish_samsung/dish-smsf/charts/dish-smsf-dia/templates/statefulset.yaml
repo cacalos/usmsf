@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.global.serviceName.dia }}
+spec:
+  serviceName: "usmsf-adif"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: usmsf-adif # has to match .spec.template.metadata.labels
+  template:
+    metadata:
+      labels:
+        app: usmsf-adif
+        version: v1
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "10020"
+        prometheus.io/scrape: "true"
+    spec:
+      {{- if .Values.global.nodeName }}
+      nodeName: {{ .Values.global.nodeName }}
+      {{- end }}
+      containers:
+      - name: usmsf-dia-svc
+        image: {{ .Values.deployment.containers.diaSvc.image }}
+        imagePullPolicy: {{ .Values.deployment.containers.diaSvc.imagePullPolicy }}
+        resources: {{ toYaml .Values.resources | nindent 12 }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /home/app/config
+        - name: shared-data
+          mountPath: /tmp
+        ports:
+        - containerPort: {{ .Values.global.port.dia.container }}
+        env:
+        - name: USMSF_HOME
+          value: /home/app
+        - name: USMSF_CONFIG_FILE
+          value: /home/app/config/httpif.conf
+        - name: MY_SERVICE_TYPE
+          value: DIAMETER
+        - name: SVC_POD_HOST
+          value: {{ .Values.global.serviceName.svc }}-internal.{{ .Release.Namespace }}.svc.{{ .Values.global.dnsName.zone }}:{{ .Values.global.smsf.serverPort.forInternal.http }}
+        - name: TRACE_HOME_ENV_NAME
+          value: /tmp/trace
+        - name: CONF_POD_HOST
+          value: {{ .Values.global.serviceName.uccms }}.{{ .Release.Namespace }}.svc.{{ .Values.global.dnsName.zone }}:{{ .Values.global.port.uccms.servicePort }}
+#        command: ["sh", "-c", "--"]
+#        args: ["while true; do sleep 30; done;"]
+      - name: usmsf-adif
+        image: {{ .Values.deployment.containers.adif.image }}
+        imagePullPolicy: {{ .Values.deployment.containers.adif.imagePullPolicy }}
+        command :
+        - bash
+        - -c
+        - |
+          echo "$MY_POD_NAME"
+          echo "$MY_POD_IP"
+          hostname
+          rm -rf /home/app/HOME/data/udia_conf.xml
+          rm -rf /home/app/HOME/data/adif.conf
+          ln -s /tmp/adif-conf/udia_conf.xml /home/app/HOME/data/udia_conf.xml
+          ln -s /tmp/adif-conf/adif.conf /home/app/HOME/data/adif.conf
+          /home/app/HOME/bin/adif-ha-run.sh
+        volumeMounts:
+        - name: adif-conf-volume
+          mountPath: /tmp/adif-conf
+        - name: log-volume
+          mountPath: /home/app/HOME/log
+        ports:
+        - containerPort: 3868
+        env:
+        - name: MY_POD_NAME 
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_IP 
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: ACTIVE_SERVICE_NAME 
+          value: {{ .Values.global.serviceName.dia | quote }}
+        - name: ACTIVE_CHECK_PERIOD 
+          value: "1"
+        - name: ADIF_CONFIG_FILE
+          value: /home/app/HOME/data/adif.conf
+        - name: CLICOLOR_FORCE
+          value: "1"
+        - name: EM_SERVICE
+          value: {{ .Values.global.serviceName.emagt | quote }}
+        - name: MY_SERVICE
+          value: "DIAMETER"
+        - name: EM_HTTP_PORT
+          value: {{ .Values.global.port.emagt.http | quote }}
+        - name: EM_WS_PORT
+          value: {{ .Values.global.port.emagt.ws | quote }}
+        - name: MY_GROUP
+          value: "DIAMETER"
+        - name: MYSQL_ADDR
+          value: "{{ .Values.global.serviceName.mariadb }}.{{ .Release.Namespace }}.svc.{{ .Values.global.dnsName.zone }}"
+        - name: ENALBED_TRACE
+          value: "false"
+        - name: ENALBED_MMCD
+          value: "true"
+        - name: MMCD_PORT
+          value: "32003"
+#        command: ["sh", "-c", "--"]
+#        args: ["while true; do sleep 30; done;"]
+      volumes:
+      - name: adif-conf-volume
+        configMap:
+          name: {{ .Values.configmaps.names.adif }}
+      - name: log-volume
+        emptyDir: {}
+      - name: shared-data
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: {{ .Values.configmaps.names.if }}
+          #initContainers:
+          #- name: init-sysctl
+          #image: busybox:latest
+          #imagePullPolicy: IfNotPresent
+          #command:
+          #- /bin/sh
+          #- -c
+          #- |
+          #sysctl -w kernel.msgmax=65536
+          #sysctl -w kernel.msgmni=80000
+          #sysctl -w kernel.msgmnb=536862720
+          #sysctl -w net.ipv4.tcp_mem="8388608 8388608 10485760"
+          #securityContext:
+          #privileged: true
+

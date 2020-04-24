@@ -1,0 +1,202 @@
+global:
+
+  # AWS, GCP, SCP, ...
+  cloudPlatform: SCP
+
+  aws:
+    dbEndPoint: "hong-db.c2teww4mkk5s.ap-northeast-2.rds.amazonaws.com"
+
+  usePrometheus: false
+
+  nodeName: "iot-02"
+
+  port:
+    db:
+      mariadb: 3306
+  smscSim:
+    clusterIP: "10.100.176.200"
+
+  smsf:
+    ipaddr:
+      expose:
+        svc:
+          ipv4: ""
+          ipv4ForExternalIP: ""
+        nrfClient:
+          ipv4: "10.10.10.10"
+          ipv4ForExternalIP: "255.255.255.255"
+
+dish-smsf-svc:
+  configmap:
+    usmsfConf:
+      useH2C: false
+
+      # true:  NRF와 NF Discovery 연동 없이 "nrf-local-config"에 설정된 NF profile을 사용한다.
+      # false: NRF와 NF Discovery 연동을 통해 NF profile을 얻은 후 이 값을 사용한다.
+      useLocalNFProfile: false
+
+      #  not_use:         OAuth Access Token을 사용하지 않는다. (NRF로부터 구해오지도 않고, 다른 NF로 전송하지도 않음)
+      #  use_nrf_token:   OAuth Access Token을 사용한다. (NRF로부터 구해온 token 사용)
+      #  use_local_token: OAuth Access Token을 사용한다. (NRF로부터 구해오지 않고 local config에 설정된 token 사용)
+      oauthTokenScheme: not_use
+
+      # NF로부터 받은 요청 메시지 내 access token 검사 여부
+      shouldCheckAccessToken: false
+
+      # true로 설정 시, Liveness/Readiness probe 처리 기능 활성화
+      useHealthCheck: true
+
+      healthCheck:
+        # kubelet으로부터 liveness/readiness probe 요청을 수신할 포트
+        listenPort: 8080
+
+        livenessCheck:
+
+          # true인 경우에만 liveness checker 동작
+          enabled: true
+
+          # true:  백그라운드에서 주기적으로 liveness 검사 (주기: asyncCheckInterval)
+          # false: kubelet으로부터 liveness probe 수신 시에만 liveness 검사
+          useAsyncCheck: false
+
+          # useAsyncCheck=true인 경우에만 유효
+          asyncCheckInterval: 3s
+
+         # Probe에 대한 응답을 강제로 특정 값으로 설정하도록 시뮬레이션하고자 할 때 사용
+          simulationMode:
+
+            # true: 시뮬레이션 모드로 동작, false: 일반 모드로 동작
+            enabled: false
+
+            # true: 에러로 응답, false: 성공으로 응답
+            returnError: false
+
+        readinessCheck:
+
+          # 각 필드 설명은 livenessCheck 참조
+
+          enabled: true
+          useAsyncCheck: false
+          asyncCheckInterval: 5s
+          simulationMode:
+            enabled: false
+            returnError: false
+
+  deployment:
+    containers:
+      usmsf:
+        #image: camel.uangel.com:5000/usmsf:v062
+        #imagePullPolicy: IfNotPresent
+        image: camel.uangel.com:5000/usmsf:latest
+        imagePullPolicy: Always
+
+        # useManualStart: "true"인 경우 해당 container를 자동으로 기동시키지 않는다. (default: "false")
+        useManualStart: false
+
+        healthCheck:
+
+          liveness:
+            sendProbe: false
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          readiness:
+            sendProbe: false
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+      redisServer:
+        image: camel.uangel.com:5000/svc_redis:v050
+        imagePullPolicy: IfNotPresent
+
+      emsubagt:
+        image: camel.uangel.com:5000/emsubagt:v050
+        imagePullPolicy: IfNotPresent
+
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4096Mi
+      requests:
+        cpu: 2000m
+        memory: 2048Mi
+
+dish-smsf-emagt:
+  #resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      cpu: 2000m
+      memory: 2048Mi
+
+dish-smsf-emgui:
+  #resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      cpu: 2000m
+      memory: 2048Mi
+
+
+dish-smsf-dia:
+  deployment:
+    containers:
+      diaSvc:
+        image: "camel.uangel.com:5000/dia_svc:v061"
+        imagePullPolicy: "IfNotPresent"
+      adif:
+        image: "camel.uangel.com:5000/adif:latest"
+        imagePullPolicy: "IfNotPresent"
+      emsubagt:
+        image: camel.uangel.com:5000/emsubagt:latest
+        imagePullPolicy: "IfNotPresent"
+  #resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      cpu: 2000m
+      memory: 2048Mi
+
+dish-smsf-nrfclient:
+
+  configmap:
+    # shouldUseH2CModule:
+    # ulib.NetH2cClient 모듈을 사용할 것인지 여부
+    # true인 경우, useH2CWithoutModule 값 여부에 상관 없이 무조건 H2C 사용
+    shouldUseH2CModule: false
+
+    # useH2CWithoutModule:
+    # ulib.NetH2cClient 모듈 사용 시에는 무시되는 값으로,
+    # true인 경우 H2C를 사용한다.
+    useH2CWithoutModule: true
+
+  deployment:
+    nrfHostAddress: "172.22.90.25:80"
+  #resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      cpu: 2000m
+      memory: 2048Mi
+
+dish-smsf-uccms:
+  #resources:
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+    requests:
+      cpu: 2000m
+      memory: 2048Mi
+
+dish-smsf-smsc:
+  #resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 512Mi

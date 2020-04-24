@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: usmsf-uccms
+  namespace: smsf
+  labels:
+    app: usmsf-uccms
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9090
+  selector:
+    app: usmsf-uccms
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usmsf-uccms
+  namespace: smsf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: usmsf-uccms
+  template:
+    metadata:
+      labels:
+        app: usmsf-uccms
+        version: v1
+    spec:
+      nodeName: worker01.standalone
+      containers:
+      - name: uccms
+        image: camel.uangel.com:5000/uccms:20200131-120221
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        ports:
+        - containerPort: 9090
+        env:
+        - name: CONFIG_FILE
+          value: /app/config/uccms.conf
+        - name: LOGGER_CONFIG
+          value: /app/config/logger.conf
+        - name: MANAGE_DB_DRIVER
+          value: "mysql"
+        - name: MANAGE_DB_HOST
+          value: "umariadb.smsf.svc.cluster.local:3306"
+        - name: MANAGE_DB_USER
+          value: "root"
+        - name: MANAGE_DB_PW
+          value: "root.123"
+        - name: MANAGE_DB_NAME
+          value: "uccms"
+        - name: MANAGE_SVC_PORT
+          value: "9090"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: usmsf-uccms-conf
+ 

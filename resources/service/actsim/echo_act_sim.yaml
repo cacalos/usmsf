@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: shseo 
+  name: usmsf-act-sim
+  labels:
+    app: usmsf-act-sim
+spec:
+  type: ClusterIP
+  ports:
+  - name: usmsf-act-sim
+    port: 1234
+#  - name: usmsf-act-sim
+#    port: 9091
+  selector:
+    app: usmsf-act-sim
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usmsf-act-sim-v1
+  namespace: shseo 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: usmsf-act-sim
+  template:
+    metadata:
+      labels:
+        app: usmsf-act-sim
+        version: v1
+    spec:
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: act-config
+      - name: log-volume
+        emptyDir: {}
+      - name: tcpdump 
+        emptyDir: {}
+#      hostAliases:
+#      - ip: "192.168.7.180"
+#        hostnames:
+#        - "amf.uangel.com"
+#        - "udm.uangel.com"
+#      hostNetwork: true
+#      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+#      - name: tcpdump
+#        image: docker.io/dockersec/tcpdump
+#        command: ["sh", "-c", "--"]
+#        args: ["while true; do sleep 30; done;"]
+      - name: usmsf-act-sim
+        image: camel.uangel.com:5000/usmsf-usmsfperf:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        - name: shared-data 
+          mountPath: /tmp
+        - name: log-volume
+          mountPath: /app/logs
+#        ports:
+#        - containerPort: 8081
+#        - containerPort: 9091
+        env:
+        - name: USMSF_HOME
+          value: /app
+        - name: USMSF_CONFIG_FILE
+          value: /app/config/application.conf
+#        - name: JAEGER_AGENT_HOST
+#          valueFrom:
+#            fieldRef:
+#              fieldPath: status.hostIP
+        command: ["sh", "-c", "--"]
+        args: ["while true; do sleep 30; done;"]
+---

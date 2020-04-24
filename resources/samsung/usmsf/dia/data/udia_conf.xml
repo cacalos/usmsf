@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "configuration.dtd">
+
+<udiameter>
+	<general>
+		<option>
+			<use_ipv6>no</use_ipv6>
+			<use_duplicate_detect>no</use_duplicate_detect>
+			<use_loop_detect>yes</use_loop_detect>
+			<use_loop_avoidance>yes</use_loop_avoidance>
+			<check_cer_ip>yes</check_cer_ip>
+			<check_tport_ip>no</check_tport_ip>
+			<check_dest_host>no</check_dest_host>
+		</option>
+	</general>
+	<dictionary>
+		<file>$UASYS_HOME/data/dict/dict_common.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_ietf_avps.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_ietf_base_RFC6733.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_etsi_avps.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_3gpp_avps.xml</file>
+		<file>$UASYS_HOME/data/dict/dict_3gpp_sgd.xml</file>
+	</dictionary>
+	<server id="0" hostname="smsf.uangel.com" realm="uangel.com" default="yes">
+		<option>
+			<use_ipv6>no</use_ipv6>
+			<use_duplicate_detect>yes</use_duplicate_detect>
+		</option>
+		<parser>
+			<version>1</version>
+		</parser>
+		<timer>
+			<tw_timer>2800000</tw_timer>
+			<tq_timer>1000</tq_timer>
+			<te_timer>2500</te_timer>
+			<orq_retrans_count>0</orq_retrans_count>
+		</timer>
+		<capability>
+			<product_name>UANGEL DIAMETER</product_name>
+			<vendor_id>11858</vendor_id>
+			<supported_vendor_id>0</supported_vendor_id>
+			<supported_vendor_id>10415</supported_vendor_id>
+			<supported_vendor_id>14389</supported_vendor_id>
+			<auth_application_id>4</auth_application_id>
+			<acct_application_id>3</acct_application_id>
+			<vendor_specific_application_id>
+				<vendor_id>10415</vendor_id>
+				<auth_application_id>16777313</auth_application_id>
+			</vendor_specific_application_id>
+			<vendor_specific_application_id>
+				<vendor_id>10415</vendor_id>
+				<auth_application_id>16777216</auth_application_id>
+			</vendor_specific_application_id>
+			<vendor_specific_application_id>
+				<vendor_id>10415</vendor_id>
+				<acct_application_id>16777312</acct_application_id>
+			</vendor_specific_application_id>
+			<vendor_specific_application_id>
+				<vendor_id>10415</vendor_id>
+				<auth_application_id>16777311</auth_application_id>
+			</vendor_specific_application_id>
+			<host_ip_address>192.168.5.18</host_ip_address>
+		</capability>
+		<transport type="tcp" port="3868"/>
+		<transport type="sctp" port="3869"/>
+	</server>
+	<peer id="0" hostname="smsc.kt.com" server="smsf.uangel.com">
+		<disable>no</disable>
+		<transport type="tcp" port="3968" way="SERVER" address="100.0.1.200">
+		</transport>
+	</peer>
+	<route id="0" realm="kt.com" server="smsf.uangel.com" default="no">
+		<approute application_id="16777313" role="LOCAL">
+			<peerroute peer="smsc.kt.com"/>
+		</approute>
+		<approute application_id="0" role="LOCAL" default="yes">
+        </approute>
+	</route>
+	<route id="2" realm="uangel.com" server="smsf.uangel.com" default="no">
+		<approute application_id="16777313" role="LOCAL">
+		</approute>
+		<approute application_id="0" role="LOCAL" default="yes">
+		</approute>
+	</route>
+</udiameter>

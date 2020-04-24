@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configmap.name }}
+  namespace: {{ .Release.Namespace }}
+data:
+  smsf-profile.json: |-
+    {
+        "nfInstanceId": {{ .Values.global.smsf.nfId | quote }},
+        "nfType": {{ .Values.global.nfType | quote }},
+        "nfStatus": "REGISTERED",
+        "ipv4Addresses": [
+          {{ .Values.global.smsf.ipaddr.expose.svc.ipv4 | quote }}
+        ],
+        "nfServices": [
+          {
+            "serviceInstanceId": "{{ .Values.global.nfType }}-{{ .Release.Namespace }}-sms-{{ .Values.global.smsf.ipaddr.expose.svc.ipv4 }}-{{ .Values.global.smsf.serverPort.forNFServer.http }}",
+            "serviceName": "nsmsf-sms",
+            "versions": {
+              "apiVersionInUri": "v1",
+              "apiFullVersion": "1.0.0"
+            },
+            "scheme": {{ .Values.configmap.smsfProfile.nfServices.nsmsfSms.scheme | quote }},
+            "nfServiceStatus": "REGISTERED",
+            "ipEndPoints": {
+              "ipv4Address": {{ .Values.global.smsf.ipaddr.expose.svc.ipv4 | quote }},
+              "port": {{ .Values.global.smsf.serverPort.forNFServer.http }}
+            }
+          }
+        ],
+        "plmn": {
+            "mcc": {{ .Values.configmap.smsfProfile.plmn.mcc | quote }},
+            "mnc": {{ .Values.configmap.smsfProfile.plmn.mnc | quote }}
+        },
+        {{ if .Values.configmap.smsfProfile.fqdn }}
+        "fqdn": {{ .Values.configmap.smsfProfile.fqdn | quote }},
+        {{ end }}
+        "capacity": 50,
+        "load": 0
+    }
+
+  logger.conf: |-
+    loggers {
+        root {
+            level = {{ .Values.configmap.logger.logLevels.root | quote }}
+            appender = [
+                console
+            ]
+        }
+        com.uangel {
+            level = {{ .Values.configmap.logger.logLevels.com_uangel | quote }}
+            additivity = true
+            appender = [
+                uangel
+            ]
+        }
+    }
+    
+    appenders {
+        console {
+            format = "text"
+            class = "Console"
+            print-caller = true
+        }
+        uangel {
+            format = "text"
+            class = "File"
+            file = ${?USMSF_HOME}/logs/nrf_client.log
+        }
+    }
+
+  reference.conf: |-
+    modules = [
+        "UlibDefaults"
+        "TraceMgr"
+        "NRFClient"
+        "ulib.NetH2cClient"
+    ] ,
+    
+    logrus {
+        config-file = ${?USMSF_HOME}/config/logger.conf
+        format = "text"
+        print-caller = true
+        watch-config = true
+    }
+    
+    nrf-client : {
+        nrf-registration {
+            target-nfi-uri = "nnrf-nfm/v1/nf-instances"
+            target-subs-uri = "nnrf-nfm/v1/subscriptions"
+    
+            profile = ${?USMSF_HOME}/config/smsf-profile.json
+            retry-register-interval = 3
+            heart-beat-interval = 60
+            heart-beat-failure-threshold = 5
+            validity-time-extention = 480
+        }
+    
+        scheme = "h2c"
+    }

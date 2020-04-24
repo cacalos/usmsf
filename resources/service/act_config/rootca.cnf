@@ -1,0 +1,30 @@
+# OpenSSL configuration file for creating a CSR for a server certificate
+# Adapt at least the FQDN and ORGNAME lines, and then run 
+# openssl req -new -config server.cnf -keyout server.key -out server.csr
+# on the command line.
+
+FQDN = rootca.com
+ORGNAME = ExamplePublicCA
+ORGUNIT = ExampleCA
+ALTNAMES = DNS:$FQDN   # , DNS:bar.rootca.com , DNS:www.rootca.com
+
+# --- no modifications required below ---
+[ req ]
+default_bits = 2048
+default_md = rsa
+prompt = no
+encrypt_key = no
+distinguished_name = dn
+req_extensions = req_ext
+
+[ dn ]
+C  = KO
+ST = Seoul
+L  = GangNam
+O  = $ORGNAME 
+OU = $ORGUNIT 
+CN = $FQDN
+emailAddress = ittech@rootca.com
+	   
+[ req_ext ]
+subjectAltName = $ALTNAMES

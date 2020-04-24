@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: usmsf
+  name: usmsf-amf-sim
+  labels:
+    app: usmsf-amf-sim
+spec:
+  type: ClusterIP
+  ports:
+  - name: http-amfsim
+    port: 8085
+  - name: https-amfsim
+    port: 9095
+  selector:
+    app: usmsf-amfsim-sim
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: usmsf
+  name: usmsf-amf-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: usmsf-amfsim-sim
+  template:
+    metadata:
+      labels:
+        app: usmsf-amfsim-sim
+        version: v1
+    spec:
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: usmsf-amfsim
+      - name: log-volume
+        emptyDir: {}
+      - name: tcpdump 
+        emptyDir: {}
+#      hostAliases:
+#      - ip: "192.168.7.180"
+#        hostnames:
+#        - "amf.uangel.com"
+#        - "udm.uangel.com"
+#      hostNetwork: true
+#      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+#      - name: tcpdump
+#        image: docker.io/dockersec/tcpdump
+#        command: ["sh", "-c", "--"]
+#        args: ["while true; do sleep 30; done;"]
+      - name: usmsf-amfsim
+        image: camel.uangel.com:5000/usmsf-amf_sim:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        - name: shared-data 
+          mountPath: /tmp
+        - name: log-volume
+          mountPath: /app/logs
+        ports:
+        - containerPort: 8085
+        - containerPort: 9095
+        env:
+        - name: USMSF_HOME
+          value: /app
+        - name: USMSF_CONFIG_FILE
+          value: /app/config/reference.conf
+#        - name: JAEGER_AGENT_HOST
+#          valueFrom:
+#            fieldRef:
+#              fieldPath: status.hostIP
+        command: ["sh", "-c", "--"]
+        args: ["while true; do sleep 30; done;"]
+---

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "dish-smsf-smsc.fullname" . }}-test-connection"
+  labels:
+{{ include "dish-smsf-smsc.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['{{ include "dish-smsf-smsc.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

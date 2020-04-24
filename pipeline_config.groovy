@@ -10,7 +10,7 @@ MAKEIMAGE_SHELL := sh ./cmd/usmsf/jenkins_build.sh
     make
     docker {
 		remove_local_image = false
-		registry = "docker.io/joyddung"
+		registry = "camel.uangel.com:5000"
 		cred = "docker-hub"
 		repo_path_prefix = ""
 		build_strategy = "dockerfile"

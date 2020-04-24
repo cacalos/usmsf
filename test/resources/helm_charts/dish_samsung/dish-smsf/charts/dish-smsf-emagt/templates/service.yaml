@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.global.serviceName.emagt }}
+  labels:
+    app: {{ .Values.global.serviceName.emagt }}
+spec:
+  type: {{ .Values.service.emagt.type | default "ClusterIP" }}
+  ports:
+  - name: http
+    port: {{ .Values.global.port.emagt.http }}
+    targetPort: {{ .Values.global.port.emagt.http }}
+  - name: ws
+    port: {{ .Values.global.port.emagt.ws }}
+    targetPort: {{ .Values.global.port.emagt.ws }}
+  - name: http-pm
+    port: {{ .Values.service.emagt.ports.httpPm.port }}
+    targetPort: {{ .Values.service.emagt.ports.httpPm.targetPort }}
+  selector:
+    app: {{ .Values.global.serviceName.emagt }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.service.emagtWs.name }}
+  labels:
+    app: {{ .Values.service.emagtWs.name }}
+spec:
+  type: {{ .Values.service.emagtWs.type | default "ClusterIP" }}
+  ports:
+  - name: ws
+    port: {{ .Values.global.port.emagt.ws }}
+    targetPort: {{ .Values.global.port.emagt.ws }}
+    {{- if (eq .Values.service.emagtWs.type "NodePort") }}
+    nodePort: {{ .Values.service.emagtWs.ports.ws.nodePort }}
+    {{- end }}
+  - name: stat
+    port: {{ .Values.service.emagtWs.ports.stat.port }}
+    targetPort: {{ .Values.service.emagtWs.ports.stat.targetPort }}
+    {{- if (eq .Values.service.emagtWs.type "NodePort") }}
+    nodePort: {{ .Values.service.emagtWs.ports.stat.nodePort }}
+    {{- end }}
+  selector:
+    app: {{ .Values.global.serviceName.emagt }}
+---
+#apiVersion: monitoring.coreos.com/v1
+#kind: ServiceMonitor
+#metadata:
+#  namespace: {{ .Release.Namespace }}
+#  name: pm-ext
+#  labels:
+#    release: monitoring
+#    service-name: nf-metric
+#spec:
+#  selector:
+#    matchLabels:
+#     app: {{ .Values.global.serviceName.emagt }}
+#  endpoints:
+#  - port: http-pm
+#    interval: 10s

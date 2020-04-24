@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.service.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.name }}
+        version: v1
+    spec:
+      {{- if .Values.global.nodeName }}
+      nodeName: {{ .Values.global.nodeName }}
+      {{- end }}
+      containers:
+      - name: uccms
+        image: {{ .Values.deployment.containers.uccms.image }}
+        imagePullPolicy: {{ .Values.deployment.containers.uccms.imagePullPolicy }}
+        {{- if .Values.resources }}
+        resources: {{ toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        ports:
+        - containerPort: {{ .Values.deployment.containers.uccms.port }}
+        env:
+        - name: CONFIG_FILE
+          value: /app/config/uccms.conf
+        - name: LOGGER_CONFIG
+          value: /app/config/logger.conf
+        - name: MANAGE_DB_DRIVER
+          value: "mysql"
+        - name: MANAGE_DB_HOST
+          value: "{{ .Values.global.serviceName.mariadb }}.{{ .Release.Namespace }}.svc.{{ .Values.global.dnsName.zone }}:3306"
+        - name: MANAGE_DB_USER
+          value: "root"
+        - name: MANAGE_DB_PW
+          value: "root.123"
+        - name: MANAGE_DB_NAME
+          value: "uccms"
+        - name: MANAGE_SVC_PORT
+          value: {{ .Values.deployment.containers.uccms.port | quote }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Values.configmap.name }}
