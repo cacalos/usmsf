@@ -8,7 +8,7 @@ MAKEIMAGE_SHELL := sh ./cmd/usmsf/jenkins_build.sh
 '''
     }
     make
-    docker {
+    sdpdocker {
 		remove_local_image = false
 		registry = "https://index.docker.io/v1/joyddung"
 		cred = "docker-hub"
