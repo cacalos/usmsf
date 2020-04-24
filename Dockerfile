@@ -5,10 +5,10 @@ RUN apk add --no-cache git
 RUN apk add build-base
 COPY camel_git_cert.pem /
 RUN cat /camel_git_cert.pem >> /etc/ssl/certs/ca-certificates.crt
-WORKDIR /src
-COPY . .
-WORKDIR /src/cmd/$COMMAND
-RUN go install -v
+#WORKDIR /src
+#COPY . .
+#WORKDIR /src/cmd/$COMMAND
+#RUN go install -v
 
 #final stage
 FROM alpine:latest
@@ -16,6 +16,6 @@ FROM alpine:latest
 ENV COMMAND=usmsf
 RUN apk --no-cache add ca-certificates
 RUN mkdir /app
-COPY --from=builder /go/bin/$COMMAND /app/$COMMAND
-ENV GIN_MODE release
-ENTRYPOINT /app/$COMMAND
+#COPY --from=builder /go/bin/$COMMAND /app/$COMMAND
+#ENV GIN_MODE release
+#ENTRYPOINT /app/$COMMAND

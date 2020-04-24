@@ -1,5 +1,0 @@
-#!/bin/sh
-
-uccms/uccmsctl --config uccms/confctl.json $*
-
-#kubectl port-forward $(kubectl get pod -n usmsf | grep 'usmsf-uccms'| head -n 1 | awk '{print $1}') -n usmsf 9090:9090 &
