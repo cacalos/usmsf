@@ -10,7 +10,7 @@ MAKEIMAGE_SHELL := sh ./cmd/usmsf/jenkins_build.sh
     make
     sdpdocker {
 		remove_local_image = false
-		registry = "https://index.docker.io/v1/joyddung"
+		registry = "docker.io/joyddung"
 		cred = "docker-hub"
 		repo_path_prefix = ""
 		build_strategy = "dockerfile"
