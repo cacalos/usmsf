@@ -1,36 +1,31 @@
-podTemplate(label: 'jenkins-slave-pod', 
-    containers: [
-        containerTemplate(
-            name: 'docker',
-            image: 'docker',
-            command: 'cat',
-            ttyEnabled: true
-        ),
-    ],
-    volumes: [ 
-        hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'), 
-    ],
-    {
-        node('jenkins-slave-pod') { 
-            def registry = "camel.uangel.com:5000"
-            def registryCredential = "camel"
+def label = "mypod-${UUID.randomUUID().toString()}"
+podTemplate(label: label, containers: [
+    containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'golang', image: 'golang:1.8.0', ttyEnabled: true, command: 'cat')
+  ]) {
 
-
-            stage('Build docker image') {
-                container('docker') {
-                    withDockerRegistry([ credentialsId: "$registryCredential", url: "http://$registry" ]) {
-                        sh "docker build -t $registry/test:1.0 -f ./Dockerfile ."
-                    }
+    node(label) {
+        stage('Get a Maven project') {
+            git 'https://github.com/jenkinsci/kubernetes-plugin.git'
+            container('maven') {
+                stage('Build a Maven project') {
+                    sh 'mvn -B clean install'
                 }
             }
+        }
 
-            stage('Push docker image') {
-                container('docker') {
-                    withDockerRegistry([ credentialsId: "$registryCredential", url: "http://$registry" ]) {
-                        docker.image("$registry/sampleapp:1.0").push()
-                    }
+        stage('Get a Golang project') {
+            git url: 'https://github.com/hashicorp/terraform.git'
+            container('golang') {
+                stage('Build a Go project') {
+                    sh """
+                    mkdir -p /go/src/github.com/hashicorp
+                    ln -s `pwd` /go/src/github.com/hashicorp/terraform
+                    cd /go/src/github.com/hashicorp/terraform && make core-dev
+                    """
                 }
             }
-        }   
+        }
+
     }
-) 
+}
