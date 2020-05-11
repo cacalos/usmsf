@@ -1,43 +1,52 @@
-def label = "worker-${UUID.randomUUID().toString()}"
-podTemplate(label: label, containers: [
-  containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
-  containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
-  containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true)
-],
-volumes: [
-  hostPathVolume(mountPath: '/home/gradle/.gradle', hostPath: '/tmp/jenkins/.gradle'),
-  hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
-]) {
-  node(label) {
-    def myRepo = checkout scm
-    def gitCommit = myRepo.GIT_COMMIT
-    def gitBranch = myRepo.GIT_BRANCH
-    def shortGitCommit = "${gitCommit[0..10]}"
-    def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
- 
-    stage('Create Docker images') {
-      container('docker') {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding',
-          credentialsId: 'dockerhub',
-          usernameVariable: 'DOCKER_HUB_USER',
-          passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
-          sh """
-            docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
-            docker build -t namespace/my-image:${gitCommit} .
-            docker push namespace/my-image:${gitCommit}
-            """
+podTemplate(label: 'jenkins-slave-pod', 
+  containers: [
+    containerTemplate(
+      name: 'git',
+      image: 'alpine/git',
+      command: 'cat',
+      ttyEnabled: true
+    ),
+    containerTemplate(
+      name: 'docker',
+      image: 'docker',
+      command: 'cat',
+      ttyEnabled: true
+    ),
+  ],
+  volumes: [ 
+    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'), 
+  ]
+) {
+    node('jenkins-slave-pod') { 
+        def registry = "camel.uangel.com:5000"
+        def registryCredential = "camel"
+
+        stage('Clone repository') {
+            container('git') {
+                // https://gitlab.com/gitlab-org/gitlab-foss/issues/38910
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [
+                        [url: 'https://github.com/cacalos/usmsf.git']
+                    ],
+                ])
+            }
         }
-      }
-    }
-    stage('Run kubectl') {
-      container('kubectl') {
-        sh "kubectl get pods"
-      }
-    }
-    stage('Run helm') {
-      container('helm') {
-        sh "helm list"
-      }
-    }
-  }
+
+        stage('Build docker image') {
+            container('docker') {
+                withDockerRegistry([ credentialsId: "$registryCredential", url: "http://$registry" ]) {
+                    sh "docker build -t $registry/test:1.0 -f ./Dockerfile ."
+                }
+            }
+        }
+
+        stage('Push docker image') {
+            container('docker') {
+                withDockerRegistry([ credentialsId: "$registryCredential", url: "http://$registry" ]) {
+                    docker.image("$registry/sampleapp:1.0").push()
+                }
+            }
+        }
+    }   
 }
