@@ -15,19 +15,6 @@ podTemplate(label: 'jenkins-slave-pod',
             def registry = "camel.uangel.com:5000"
             def registryCredential = "camel"
 
-			/*
-            stage('Clone repository') {
-                container('git') {
-                    // https://gitlab.com/gitlab-org/gitlab-foss/issues/38910
-                    checkout([$class: 'GitSCM',
-                        branches: [[name: '*/master']],
-                        userRemoteConfigs: [
-                            [url: 'https://github.com/cacalos/usmsf.git']
-                        ],
-                    ])
-                }
-            }
-			*/
 
             stage('Build docker image') {
                 container('docker') {
