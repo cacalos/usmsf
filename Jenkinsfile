@@ -1,12 +1,6 @@
 podTemplate(label: 'jenkins-slave-pod', 
     containers: [
         containerTemplate(
-            name: 'git',
-            image: 'alpine/git',
-            command: 'cat',
-            ttyEnabled: true
-        ),
-        containerTemplate(
             name: 'docker',
             image: 'docker',
             command: 'cat',
@@ -21,6 +15,7 @@ podTemplate(label: 'jenkins-slave-pod',
             def registry = "camel.uangel.com:5000"
             def registryCredential = "camel"
 
+			/*
             stage('Clone repository') {
                 container('git') {
                     // https://gitlab.com/gitlab-org/gitlab-foss/issues/38910
@@ -32,6 +27,7 @@ podTemplate(label: 'jenkins-slave-pod',
                     ])
                 }
             }
+			*/
 
             stage('Build docker image') {
                 container('docker') {
