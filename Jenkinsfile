@@ -1,13 +1,14 @@
-podTemplate(label: 'jenkins-slave-pod', 
+podTemplate(label: 'jenkins-slave', 
     containers: [
   		containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true),
   		containerTemplate(name: 'jnlp', image: 'aimvector/jenkins-slave:latest', command: '/usr/local/bin/jenkins-slave', ttyEnabled: true)
     ],
     volumes: [ 
         hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'), 
+        hostPathVolume(mountPath: '/var/jenkins_home', hostPath: '/var/jenkins_home'), 
     ],
     {
-        node('jenkins-slave-pod') { 
+        node('jenkins-slave') { 
             def registry = "camel.uangel.com:5000"
             def registryCredential = "camel"
 
