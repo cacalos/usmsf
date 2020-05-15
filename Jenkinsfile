@@ -1,7 +1,7 @@
 podTemplate(label: 'jenkins-slave-pod', 
     containers: [
-  		//containerTemplate(name: 'docker', image: 'camel.uangel.com:5000/images/docker-agent:1.0', alwaysPullImage: true, command: 'cat', ttyEnabled: true, envVars: [ containerEnvVar(key: "DOCKER_TLS_VERIFY", value: "1" ), containerEnvVar(key: "DOCKER_HOST", value: "tcp://sonar.uangel.com:2376" ), containerEnvVar(key: "DOCKER_CERT_PATH", value: "/home/jenkins/.docker/machine/certs/") ]),
-  		containerTemplate(name: 'docker', image: 'camel.uangel.com:5000/images/docker-agent:1.0', alwaysPullImage: true, command: 'cat', ttyEnabled: true),
+  		containerTemplate(name: 'docker', image: 'camel.uangel.com:5000/images/docker-agent:1.0', alwaysPullImage: true, command: 'cat', ttyEnabled: true, envVars: [ containerEnvVar(key: "DOCKER_TLS_VERIFY", value: "1" ), containerEnvVar(key: "DOCKER_HOST", value: "tcp://sonar.uangel.com:2376" ), containerEnvVar(key: "DOCKER_CERT_PATH", value: "/home/jenkins/.docker/machine/certs/") ]),
+  		//containerTemplate(name: 'docker', image: 'camel.uangel.com:5000/images/docker-agent:1.0', alwaysPullImage: true, command: 'cat', ttyEnabled: true),
   		containerTemplate(name: 'jnlp', image: 'camel.uangel.com:5000/images/jenkins-agent:1.0', command: '/usr/local/bin/jenkins-slave', ttyEnabled: true)
     ],
     volumes: [ 
