@@ -9,7 +9,7 @@ podTemplate(label: 'jenkins-slave',
         hostPathVolume(mountPath: '/var/jenkins_home', hostPath: '/var/jenkins_home'), 
     ],
     {
-        node('jenkins-slave) { 
+        node('jenkins-slave') { 
             def registry = "camel.uangel.com:5000"
             def registryCredential = "camel"
 
